@@ -1,13 +1,14 @@
 getwd()
-setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
 
 dati<-read.csv(file = "realestate_texas.csv")
 summary(dati)
 head(dati)
+
 library(ggplot2)
-library(mapdata)
+#library(mapdata)
 library(dplyr)
-library(maps)
+#library(maps)
 
 texas<-map_data("county")
 ggplot(data=texas)+
@@ -41,39 +42,23 @@ gini.index(city) #indice di gini uguale a 1 esattamente come mi aspettavo
 table(year) #anche gli anni sono equidistribuiti !!!! NO !!!!
 
 #vediamo un confronto città anni
-my_dataframe = as.data.frame(cbind(city, year, sales))
-?group_by
-
-table(my_dataframe)
-
-
-ggplot(data = dati)+
-  geom_bar(
-    aes(x=month,
-        fill=sales),
-    position = "dodge", #"stack", #dodge #fill 
-    col="black")+
-  labs(x="Lunghezza in classi",
-       y="Frequenze assolute")+
-  theme_bw()+
-  scale_y_continuous(breaks = seq(0,500,1))+
-  theme(legend.position = "bottom")
-
 sales_for_city <- dati %>%
   group_by(city, year) %>%
   summarize(sales_sum = sum(as.integer(sales)))
 
-ggplot(data = sales_for_city)+
-  geom_bar(
-    aes(x=sales_for_city$year,
-        fill=sales_for_city$sales_sum),
-    position = "dodge", #"stack", #dodge #fill 
-    col="black")+
-  scale_y_continuous(breaks=seq(0,max(as.integer(sales_for_city$sales_sum)),1))+
-  labs(x="Lunghezza in classi",
-       y="Frequenze assolute")+
-  theme_bw()+
-  theme(legend.position = "bottom")
+ggplot(data = sales_for_city,
+    aes(x=sales_for_city$year, y=sales_for_city$sales_sum, group=sales_for_city$city))+
+    geom_line(aes(colour=sales_for_city$city))+
+    scale_color_discrete("Texas cities")+
+    labs(x="year", y="sales ($)")+
+    ggtitle("Sales Trend")+
+    theme(plot.title = element_text(hjust = 0.5))
+?labs
+ggplot(data = sales_for_city,
+       aes(x=sales_for_city$year, group=sales_for_city$sell))+
+  geom_bar(aes(fill=sales_for_city$city))+
+  scale_y_continuous(breaks=seq(0,2000,20))+
+  
 
 max(as.integer(sales_for_city$sales_sum))
 
