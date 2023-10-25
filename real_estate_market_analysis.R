@@ -77,6 +77,15 @@ sales_for_month_for_year[sales_for_month_for_year$sales_sum=="1177",1:3] #Giugno
 sales_for_month_for_year[sales_for_month_for_year$sales_sum=="421",1:3] #Gennaio 2010
 
 
+#MODA (https://www.tutorialspoint.com/r/r_mean_median_mode.htm)
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+getmode(sales)
+
+
 
 ggplot(data = sales_for_city)+
     geom_line(aes(x=sales_for_city$year, 
@@ -113,81 +122,55 @@ ggplot(data = volume_sales,
 
 #range, range interquartile, varianza, deviazione std, coeff di variabilità etc..
 attach(dati)
-var(sales); sd(sales)
 
 CV <-function(x){
   return( sd(x)/mean(x) * 100 )
 }
 
-CV(sales)
-IQR(sales)
-range(sales)
-gini.index(sales)
+stats_report<-function(x){
+  variance<-var(x) 
+  std_dev<-sd(x)
+  variance_coeff<-CV(x)
+  iqr<-IQR(x)
+  distr_range<-range(x)[2]-range(x)[1]
+  gini_coeff<-gini.index(x)
+  return(data.frame(variance, std_dev, variance_coeff, iqr, distr_range, gini_coeff))
+  
+}
+  
 
-CV(volume)
-IQR(volume)
-range(volume)
-gini.index(volume)
-
-
-CV(listings)
-IQR(listings)
-range(listings)
-gini.index(listings)
-
-CV(months_inventory)
-IQR(months_inventory)
-range(months_inventory)
-gini.index(months_inventory)
-
-var(sales_for_city$sales_sum); sd(sales_for_city$sales_sum)
-CV(sales_for_city$sales_sum)
-IQR(sales_for_city$sales_sum)
-range(sales_for_city$sales_sum)
-gini.index(sales_for_city$sales_sum)
-
-var(sales_for_month$sales_sum); sd(sales_for_month$sales_sum)
-CV(sales_for_month$sales_sum)
-IQR(sales_for_month$sales_sum)
-range(sales_for_month$sales_sum)
-gini.index(sales_for_month$sales_sum)
-
-var(sales_for_month_for_year$sales_sum); sd(sales_for_month_for_year$sales_sum)
-CV(sales_for_month_for_year$sales_sum)
-IQR(sales_for_month_for_year$sales_sum)
-range(sales_for_month_for_year$sales_sum)
-gini.index(sales_for_month_for_year$sales_sum)
+stats_report(sales)
+stats_report(volume)
+stats_report(listings)
+stats_report(months_inventory)
 
 
-var(volume_sales$volumes_sum)
-sd(volume_sales$volumes_sum)
-CV(volume_sales$volumes_sum)
-IQR(volume_sales$volumes_sum)
-range(volume_sales$volumes_sum)
-gini.index(volume_sales$volumes_sum)
-
-var(volume_sales_for_month$volumes_sum)
-sd(volume_sales_for_month$volumes_sum)
-CV(volume_sales_for_month$volumes_sum)
-IQR(volume_sales_for_month$volumes_sum)
-range(volume_sales_for_month$volumes_sum)
-gini.index(volume_sales_for_month$volumes_sum)
+stats_report(sales_for_city$sales_sum)
+stats_report(sales_for_month$sales_sum)
+stats_report(sales_for_month_for_year$sales_sum)
 
 
-var(volume_sales_for_month_for_year$volumes_sum)
-sd(volume_sales_for_month_for_year$volumes_sum)
-CV(volume_sales_for_month_for_year$volumes_sum)
-IQR(volume_sales_for_month_for_year$volumes_sum)
-range(volume_sales_for_month_for_year$volumes_sum)
-gini.index(volume_sales_for_month_for_year$volumes_sum)
+stats_report(volume_sales$volumes_sum)
+stats_report(volume_sales_for_month$volumes_sum)
+stats_report(volume_sales_for_month_for_year$volumes_sum)
 
 
 
 #indici di forma (Asimmetria, curtosi )
 library(moments)
-
+library(gghalves)
 skewness(sales)
 kurtosis(sales)-3
+
+
+#DISTRIBUZIONE DI FREQUENZA DA CREARE: ANNI, QUADRIMESTRI, CITTA, MESI (QUINDI UNIRE PER MESI, INVECE CHE PER QUADRIMESTRI)
+#AD ESEMPIO: LA PERCENTUALE DI CASE VENDUTE NEL PRIMO MESE, RISPETTO AL TOTALE.
+#PERCENTUALE DI VOLUMI RISPETTO AL TOTALE ETC..
+#IN QUESTO MODO OTTENGO QUALCOSA DI CONCRETO...
+
+
+
+mode(city)
 
 detach(dati)
 
