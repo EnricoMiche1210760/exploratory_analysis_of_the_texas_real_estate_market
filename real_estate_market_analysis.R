@@ -3,8 +3,19 @@ getwd()
 setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 dati<-read.csv(file = "realestate_texas.csv")
-summary(dati)
+summary(dati[4:8])
 head(dati)
+
+table(dati[1])
+N <- dim(dati)[1]
+city_distribution <- dati$city
+
+ni<-table(city_distribution)
+fi<-table(city_distribution)/N
+Ni<-cumsum(ni)
+Fi<-Ni/N
+
+cbind(ni, fi, Ni, Fi)
 
 gini.index <- function(x){
   ni = table(x)
@@ -21,10 +32,12 @@ gini.index <- function(x){
 
 library(ggplot2)
 library(dplyr)
+library(xtable)
 
 attach(dati)
 
-summary(sales)
+print(xtable(t(summary(sales))), type = "latex", include.rownames=FALSE)
+
 summary(volume)
 summary(listings)
 summary(months_inventory)
@@ -38,6 +51,23 @@ summary(months_inventory)
 sales_for_city <- dati %>%
   group_by(city, year) %>%
   summarize(sales_sum = sum(as.integer(sales)))
+
+sales_for_year <- dati %>%
+  group_by(year) %>%
+  summarize(sales_sum = sum(as.integer(sales)))
+
+sales_for_month <- dati %>%
+  group_by(month) %>%
+  summarize(sales_sum = sum(as.integer(sales)))
+
+print(xtable(sales_for_year))
+print(xtable(sales_for_month))
+
+
+volume_for_year <- dati %>%
+  group_by(year) %>%
+  summarize(volume_sum = sum(volume))
+
 
 volume_sales <- dati %>%
   group_by(city, year) %>%
@@ -127,19 +157,24 @@ CV <-function(x){
   return( sd(x)/mean(x) * 100 )
 }
 
-stats_report<-function(x){
+stats_report<-function(x, type="quantitative"){
   variance<-var(x) 
   std_dev<-sd(x)
   variance_coeff<-CV(x)
   iqr<-IQR(x)
   distr_range<-range(x)[2]-range(x)[1]
   gini_coeff<-gini.index(x)
+  if( type == "quantitative" )
+  {
+    return(data.frame(variance, std_dev, variance_coeff, iqr, distr_range))
+  }
   return(data.frame(variance, std_dev, variance_coeff, iqr, distr_range, gini_coeff))
   
 }
   
 
 stats_report(sales)
+print(xtable(stats_report(sales)), type = "latex", include.rownames = F)
 stats_report(volume)
 stats_report(listings)
 stats_report(months_inventory)
