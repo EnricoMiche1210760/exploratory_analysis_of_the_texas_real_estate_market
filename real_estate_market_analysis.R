@@ -39,6 +39,10 @@ attach(dati)
 print(xtable(t(summary(sales))), type = "latex", include.rownames=FALSE)
 
 summary(volume)
+print(xtable(t(summary(volume))), type = "latex", include.rownames=FALSE)
+print(xtable(t(summary(median_price))), type = "latex", include.rownames=FALSE)
+print(xtable(t(summary(listings))), type = "latex", include.rownames=FALSE)
+print(xtable(t(summary(months_inventory))), type = "latex", include.rownames=FALSE)
 summary(listings)
 summary(months_inventory)
 
@@ -175,9 +179,14 @@ stats_report<-function(x, type="quantitative"){
 
 stats_report(sales)
 print(xtable(stats_report(sales)), type = "latex", include.rownames = F)
-stats_report(volume)
+print(xtable(stats_report(volume)), type = "latex", include.rownames = F)
+
 stats_report(listings)
 stats_report(months_inventory)
+
+print(xtable(stats_report(median_price)), type = "latex", include.rownames = F)
+print(xtable(stats_report(listings)), type = "latex", include.rownames = F)
+print(xtable(stats_report(months_inventory)), type = "latex", include.rownames = F)
 
 
 stats_report(sales_for_city$sales_sum)
@@ -196,8 +205,19 @@ library(moments)
 library(gghalves)
 skewness(sales)
 kurtosis(sales)-3
+skewness(volume)
+kurtosis(volume)-3
+skewness(median_price)
+kurtosis(median_price)-3
+skewness(listings)
+kurtosis(listings)-3
+skewness(months_inventory)
+kurtosis(months_inventory)-3
 
 
+#*****
+#VARIABILE CON LA MAGGIOR VARIABILITA' E DISPERSIONE DEI DATI!!!
+#*****
 #DISTRIBUZIONE DI FREQUENZA DA CREARE: ANNI, QUADRIMESTRI, CITTA, MESI (QUINDI UNIRE PER MESI, INVECE CHE PER QUADRIMESTRI)
 #AD ESEMPIO: LA PERCENTUALE DI CASE VENDUTE NEL PRIMO MESE, RISPETTO AL TOTALE.
 #PERCENTUALE DI VOLUMI RISPETTO AL TOTALE ETC..
