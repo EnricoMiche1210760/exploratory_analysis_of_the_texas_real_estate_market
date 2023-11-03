@@ -1,6 +1,6 @@
 getwd()
-#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 dati<-read.csv(file = "realestate_texas.csv")
 summary(dati[4:8])
@@ -222,10 +222,36 @@ kurtosis(months_inventory)-3
 #AD ESEMPIO: LA PERCENTUALE DI CASE VENDUTE NEL PRIMO MESE, RISPETTO AL TOTALE.
 #PERCENTUALE DI VOLUMI RISPETTO AL TOTALE ETC..
 #IN QUESTO MODO OTTENGO QUALCOSA DI CONCRETO...
+round(max(month_inventory))
+table(month_inventory)
+min_month_inventory<-as.integer(min(month_inventory))
+max_month_inventory<-round(max(month_inventory))
 
+month_inventory_class <- cut(months_inventory, 
+                             breaks = seq(min_month_inventory,
+                                          max_month_inventory,
+                                          (max_month_inventory-min_month_inventory)/4))
 
+table(month_inventory_class)
+
+ni<-table(month_inventory_class)
+fi<-ni/N
+Ni<-cumsum(ni)
+Fi<-Ni/N
+
+month_inventory_cl_distribution<-as.data.frame((cbind(ni,fi,Ni,Fi)))
+gini.index(month_inventory_class)
+
+barplot(month_inventory_cl_distribution$ni,
+        xlab = "",
+        ylab = "",
+        ylim = c(0,120),
+        main = "",
+        names.arg = rownames(month_inventory_cl_distribution),
+        las = 2)
 
 mode(city)
+
 
 detach(dati)
 
