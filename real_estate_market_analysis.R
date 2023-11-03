@@ -222,10 +222,10 @@ kurtosis(months_inventory)-3
 #AD ESEMPIO: LA PERCENTUALE DI CASE VENDUTE NEL PRIMO MESE, RISPETTO AL TOTALE.
 #PERCENTUALE DI VOLUMI RISPETTO AL TOTALE ETC..
 #IN QUESTO MODO OTTENGO QUALCOSA DI CONCRETO...
-round(max(month_inventory))
-table(month_inventory)
-min_month_inventory<-as.integer(min(month_inventory))
-max_month_inventory<-round(max(month_inventory))
+round(max(months_inventory))
+table(months_inventory)
+min_month_inventory<-as.integer(min(months_inventory))
+max_month_inventory<-round(max(months_inventory))
 
 month_inventory_class <- cut(months_inventory, 
                              breaks = seq(min_month_inventory,
@@ -241,18 +241,37 @@ Fi<-Ni/N
 
 month_inventory_cl_distribution<-as.data.frame((cbind(ni,fi,Ni,Fi)))
 gini.index(month_inventory_class)
+?barplot
+
+c_size<-dim(month_inventory_cl_distribution)[1]
+vec=c(0.1)
+for ( i in 2:c_size ){
+  vec<-c(vec, 0.1)
+}
+
+pdf("figures/myfile.pdf", height=6, width=6)
 
 barplot(month_inventory_cl_distribution$ni,
-        xlab = "",
-        ylab = "",
         ylim = c(0,120),
-        main = "",
-        names.arg = rownames(month_inventory_cl_distribution),
-        las = 2)
+        col = "aquamarine4",
+        main = "Frequency distribution of \"Month inventory\" classes",
+        width = vec,
+        names.arg = rownames(month_inventory_cl_distribution))
+
+mtext(side=1, 
+      text="Month inventory",
+      line=2.5,
+      cex = 1.25)
+mtext(side=2,
+      text="Absolute frequency",
+      line=2.5,
+      cex = 1.25)
+
+dev.off()
 
 mode(city)
 
-
+?c
 detach(dati)
 
 
