@@ -1,6 +1,6 @@
 getwd()
-setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 dati<-read.csv(file = "realestate_texas.csv")
 summary(dati[4:8])
@@ -241,7 +241,6 @@ Fi<-Ni/N
 
 month_inventory_cl_distribution<-as.data.frame((cbind(ni,fi,Ni,Fi)))
 gini.index(month_inventory_class)
-?barplot
 
 c_size<-dim(month_inventory_cl_distribution)[1]
 vec=c(0.1)
@@ -254,7 +253,7 @@ pdf("figures/myfile.pdf", height=6, width=6)
 barplot(month_inventory_cl_distribution$ni,
         ylim = c(0,120),
         col = "aquamarine4",
-        main = "Frequency distribution of \"Month inventory\" classes",
+        main = "Frequency distribution of \"Month inventory\" class",
         width = vec,
         names.arg = rownames(month_inventory_cl_distribution))
 
@@ -271,7 +270,75 @@ dev.off()
 
 mode(city)
 
-?c
+attach(dati)
+mean_price <- round((volume / sales) * 10^6)
+ads_efficiency <- round(sales / listings, digits = 2)
+
+table(ads_efficiency)
+
+dati_with_mean_and_eff <- cbind(dati, mean_price)
+dati_with_mean_and_eff <- dati_with_mean_and_eff %>% relocate(mean_price, .before = median_price)
+
+dati_with_mean_and_eff <- cbind(dati_with_mean_and_eff, ads_efficiency)
+
+if (!dir.exists("data"))
+{
+  dir.create("data")
+}
+write.csv(dati_with_mean_and_eff, "data/realestate_texas_with_mean_and_eff.csv")
+
+summary(ads_efficiency)
+
+ads_eff_distr<- dati_with_mean_and_eff %>%
+                group_by(city, year) %>%
+                summarise(average_eff= round(mean(ads_efficiency), digits = 2))
+
+pdf("figures/sales_trend.pdf", height=6, width=6)
+ggplot(data = sales_for_city)+
+  geom_line(aes(x=sales_for_city$year, 
+                y=sales_for_city$sales_sum, 
+                group=sales_for_city$city, 
+                colour=sales_for_city$city))+
+  geom_point(aes(x=sales_for_city$year, 
+                 y=sales_for_city$sales_sum, 
+                 colour=sales_for_city$city), size=3)+
+  geom_text(aes(x=sales_for_city$year,
+                y=sales_for_city$sales_sum+75,
+                label=sales_for_city$sales_sum))+
+  scale_y_continuous(breaks = seq(0,4000,100))+
+  scale_color_discrete("Texas Cities")+
+  labs(x="Year", y="Sales")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
+dev.off()
+
+pdf("figures/ads_efficiency.pdf", height=6, width=6)
+
+ggplot(data = ads_eff_distr)+
+  geom_line(aes(x=ads_eff_distr$year, 
+                y=ads_eff_distr$average_eff, 
+                group=ads_eff_distr$city, 
+                colour=ads_eff_distr$city))+
+  geom_point(aes(x=ads_eff_distr$year, 
+                 y=ads_eff_distr$average_eff, 
+                 colour=ads_eff_distr$city), size=3)+
+  geom_text(aes(x=ads_eff_distr$year,
+                y=ads_eff_distr$average_eff+0.005,
+                label=ads_eff_distr$average_eff))+
+  scale_y_continuous(breaks = seq(0,1,0.01))+
+  scale_color_discrete("Texas Cities")+
+  labs(x="Year", y="Ads efficiency")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")
+
+dev.off()
+
+
+#???????? anno e mese come factor???
+
+
+
+
 detach(dati)
 
 
