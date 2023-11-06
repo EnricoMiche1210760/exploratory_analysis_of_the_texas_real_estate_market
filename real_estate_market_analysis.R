@@ -1,6 +1,6 @@
 getwd()
-#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 dati<-read.csv(file = "realestate_texas.csv")
 summary(dati[4:8])
@@ -119,8 +119,6 @@ getmode <- function(v) {
 
 getmode(sales)
 
-
-
 ggplot(data = sales_for_city)+
     geom_line(aes(x=sales_for_city$year, 
                   y=sales_for_city$sales_sum, 
@@ -175,7 +173,6 @@ stats_report<-function(x, type="quantitative"){
   return(data.frame(variance, std_dev, variance_coeff, iqr, distr_range, gini_coeff))
   
 }
-  
 
 stats_report(sales)
 print(xtable(stats_report(sales)), type = "latex", include.rownames = F)
@@ -183,17 +180,13 @@ print(xtable(stats_report(volume)), type = "latex", include.rownames = F)
 
 stats_report(listings)
 stats_report(months_inventory)
-
 print(xtable(stats_report(median_price)), type = "latex", include.rownames = F)
 print(xtable(stats_report(listings)), type = "latex", include.rownames = F)
 print(xtable(stats_report(months_inventory)), type = "latex", include.rownames = F)
 
-
 stats_report(sales_for_city$sales_sum)
 stats_report(sales_for_month$sales_sum)
 stats_report(sales_for_month_for_year$sales_sum)
-
-
 stats_report(volume_sales$volumes_sum)
 stats_report(volume_sales_for_month$volumes_sum)
 stats_report(volume_sales_for_month_for_year$volumes_sum)
@@ -215,9 +208,6 @@ skewness(months_inventory)
 kurtosis(months_inventory)-3
 
 
-#*****
-#VARIABILE CON LA MAGGIOR VARIABILITA' E DISPERSIONE DEI DATI!!!
-#*****
 #DISTRIBUZIONE DI FREQUENZA DA CREARE: ANNI, QUADRIMESTRI, CITTA, MESI (QUINDI UNIRE PER MESI, INVECE CHE PER QUADRIMESTRI)
 #AD ESEMPIO: LA PERCENTUALE DI CASE VENDUTE NEL PRIMO MESE, RISPETTO AL TOTALE.
 #PERCENTUALE DI VOLUMI RISPETTO AL TOTALE ETC..
@@ -333,11 +323,28 @@ ggplot(data = ads_eff_distr)+
 
 dev.off()
 
+#Probabilità Beaumont, Bryan-College Station, Tyler, Wichita Falls, mese luglio, anno 2014
 
-#???????? anno e mese come factor???
+beaumont_city <- filter(dati, city=="Beaumont")
+beaumont_city_len <- dim(beaumont_city)[1]
+beumont_prob<- beaumont_city_len/N
+beumont_prob
 
+july <- filter(dati, month==7)
+july_len <- dim(july)[1]
+july_prob<- july_len/N
+july_prob
 
+year <- filter(dati, year==2012)
+year_len <- dim(year)[1]
+year_prob<- year_len/N
+year_prob
 
+month_prob <- july_prob
+
+dec_2012_prob <- month_prob*year_prob
+
+dec_2012_prob
 
 detach(dati)
 
