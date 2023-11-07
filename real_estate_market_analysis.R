@@ -1,6 +1,6 @@
 getwd()
-setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 dati<-read.csv(file = "realestate_texas.csv")
 summary(dati[4:8])
@@ -45,71 +45,6 @@ print(xtable(t(summary(listings))), type = "latex", include.rownames=FALSE)
 print(xtable(t(summary(months_inventory))), type = "latex", include.rownames=FALSE)
 summary(listings)
 summary(months_inventory)
-
-# mode for city (as the city with the highest sales rate)
-# Tyler
-# anno 2014
-# mese Giugno
-
-#vediamo un confronto città anni mesi
-sales_for_city <- dati %>%
-  group_by(city, year) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
-
-sales_for_year <- dati %>%
-  group_by(year) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
-
-sales_for_month <- dati %>%
-  group_by(month) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
-
-print(xtable(sales_for_year))
-print(xtable(sales_for_month))
-
-
-volume_for_year <- dati %>%
-  group_by(year) %>%
-  summarize(volume_sum = sum(volume))
-
-
-volume_sales <- dati %>%
-  group_by(city, year) %>%
-  summarize(volumes_sum = sum((volume)))
-
-sales_for_month <- dati %>%
-  group_by(month) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
-
-sales_for_month_for_year <- dati %>%
-  group_by(year, month) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
-
-volume_sales_for_month <- dati %>%
-  group_by(month) %>%
-  summarize(volumes_sum = sum(volume))
-
-volume_sales_for_month_for_year <- dati %>%
-  group_by(year, month) %>%
-  summarize(volumes_sum = sum(volume))
-
-dati_tyler<- filter(sales_for_city, city=="Tyler")
-detach(dati)
-
-
-#media delle vendite in un anno in una città:
-summary(sales_for_city$sales_sum)
-summary(dati_tyler$sales_sum)
-summary(sales_for_month$sales_sum)
-summary(sales_for_month_for_year$sales_sum)
-summary(volume_sales$volumes_sum)
-summary(volume_sales_for_month$volumes_sum)
-summary(volume_sales_for_month_for_year$volumes_sum)
-
-
-sales_for_month_for_year[sales_for_month_for_year$sales_sum=="1177",1:3] #Giugno 2014
-sales_for_month_for_year[sales_for_month_for_year$sales_sum=="421",1:3] #Gennaio 2010
-
 
 #MODA (https://www.tutorialspoint.com/r/r_mean_median_mode.htm)
 getmode <- function(v) {
@@ -183,15 +118,6 @@ stats_report(months_inventory)
 print(xtable(stats_report(median_price)), type = "latex", include.rownames = F)
 print(xtable(stats_report(listings)), type = "latex", include.rownames = F)
 print(xtable(stats_report(months_inventory)), type = "latex", include.rownames = F)
-
-stats_report(sales_for_city$sales_sum)
-stats_report(sales_for_month$sales_sum)
-stats_report(sales_for_month_for_year$sales_sum)
-stats_report(volume_sales$volumes_sum)
-stats_report(volume_sales_for_month$volumes_sum)
-stats_report(volume_sales_for_month_for_year$volumes_sum)
-
-
 
 #indici di forma (Asimmetria, curtosi )
 library(moments)
@@ -298,7 +224,7 @@ ggplot(data = sales_for_city)+
   scale_y_continuous(breaks = seq(0,4000,100))+
   scale_color_discrete("Texas Cities")+
   labs(x="Year", y="Sales")+
-  theme_bw()+
+  theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
 
@@ -318,7 +244,7 @@ ggplot(data = ads_eff_distr)+
   scale_y_continuous(breaks = seq(0,1,0.01))+
   scale_color_discrete("Texas Cities")+
   labs(x="Year", y="Ads efficiency")+
-  theme_bw()+
+  theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")
 
 dev.off()
@@ -345,6 +271,106 @@ month_prob <- july_prob
 dec_2012_prob <- month_prob*year_prob
 
 dec_2012_prob
+
+
+
+#vediamo un confronto città anni mesi (PUNTO 10)
+sales_for_city <- dati %>%
+  group_by(city, year) %>%
+  summarize(sales_sum = sum(as.integer(sales)))
+
+sales_for_year <- dati %>%
+  group_by(year) %>%
+  summarize(sales_sum = sum(as.integer(sales)))
+
+sales_for_month <- dati %>%
+  group_by(month) %>%
+  summarize(sales_sum = sum(as.integer(sales)))
+
+print(xtable(sales_for_year))
+print(xtable(sales_for_month))
+
+volume_for_year <- dati %>%
+  group_by(year) %>%
+  summarize(volume_sum = sum(volume))
+
+volume_sales <- dati %>%
+  group_by(city, year) %>%
+  summarize(volumes_sum = sum((volume)))
+
+sales_for_month <- dati %>%
+  group_by(month) %>%
+  summarize(sales_sum = sum(as.integer(sales)))
+
+sales_for_month_for_year <- dati %>%
+  group_by(year, month) %>%
+  summarize(sales_sum = sum(as.integer(sales)))
+
+volume_sales_for_month <- dati %>%
+  group_by(month) %>%
+  summarize(volumes_sum = sum(volume))
+
+volume_sales_for_month_for_year <- dati %>%
+  group_by(year, month) %>%
+  summarize(volumes_sum = sum(volume))
+
+dati_tyler<- filter(sales_for_city, city=="Tyler")
+
+#media delle vendite in un anno in una città:
+summary(sales_for_city$sales_sum)
+summary(dati_tyler$sales_sum)
+summary(sales_for_month$sales_sum)
+summary(volume_sales$volumes_sum)
+summary(volume_sales_for_month$volumes_sum)
+print(xtable(t(summary(sales_for_month_for_year$sales_sum))), type = "latex", include.rownames = F)
+print(xtable(t(summary(volume_sales_for_month_for_year$volumes_sum))), type = "latex", include.rownames = F)
+
+sales_for_month_for_year[sales_for_month_for_year$sales_sum=="1177",1:3] #Giugno 2014
+sales_for_month_for_year[sales_for_month_for_year$sales_sum=="421",1:3] #Gennaio 2010
+
+
+stats_report(sales_for_city$sales_sum)
+stats_report(sales_for_month$sales_sum)
+stats_report(volume_sales$volumes_sum)
+stats_report(volume_sales_for_month$volumes_sum)
+print(xtable(stats_report(sales_for_month_for_year$sales_sum)), type = "latex", include.rownames = F)
+print(xtable(stats_report(volume_sales_for_month_for_year$volumes_sum)), type = "latex", include.rownames = F)
+
+#effectiveness
+effectiveness_for_month_for_year <- dati_with_mean_and_eff %>%
+  group_by(dati_with_mean_and_eff$year, dati_with_mean_and_eff$month) %>%
+  summarize(effectiveness = mean(dati_with_mean_and_eff$ads_eff))
+
+effectiveness_for_month_for_year
+#mean price
+
+
+detach(dati)
+attach(sales_for_month_for_year)
+pdf("figures/effectiveness_trend_months_and_year.pdf", height=6, width=6)
+ggplot(data = sales_for_month_for_year)+
+  geom_line(aes(x=month, 
+                y=sales_sum, 
+                group=year, 
+                colour=factor(year)))+
+  geom_point(aes(x=month, 
+                 y=sales_sum, 
+                 colour=factor(year)), size=3)+
+  scale_y_continuous(limits = c(400, 1200),
+                     breaks = seq(400,1200,200))+
+  scale_color_discrete("Years")+
+  scale_x_continuous(breaks = seq(1,12,1))+
+  labs(x="Month", y="Sales")+
+  title("")
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
+dev.off()
+detach(sales_for_month_for_year)
+
+attach(dati)
+
+
+
 
 detach(dati)
 
