@@ -2,20 +2,12 @@ getwd()
 #setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
 setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
-dati<-read.csv(file = "realestate_texas.csv")
-summary(dati[4:8])
-head(dati)
 
-table(dati[1])
-N <- dim(dati)[1]
-city_distribution <- dati$city
-
-ni<-table(city_distribution)
-fi<-table(city_distribution)/N
-Ni<-cumsum(ni)
-Fi<-Ni/N
-
-cbind(ni, fi, Ni, Fi)
+library(ggplot2)
+library(dplyr)
+library(xtable)
+library(moments)
+library(gghalves)
 
 gini.index <- function(x){
   ni = table(x)
@@ -28,67 +20,6 @@ gini.index <- function(x){
   
   return(gini.norm)
 }
-
-
-library(ggplot2)
-library(dplyr)
-library(xtable)
-
-attach(dati)
-
-print(xtable(t(summary(sales))), type = "latex", include.rownames=FALSE)
-
-summary(volume)
-print(xtable(t(summary(volume))), type = "latex", include.rownames=FALSE)
-print(xtable(t(summary(median_price))), type = "latex", include.rownames=FALSE)
-print(xtable(t(summary(listings))), type = "latex", include.rownames=FALSE)
-print(xtable(t(summary(months_inventory))), type = "latex", include.rownames=FALSE)
-summary(listings)
-summary(months_inventory)
-
-#MODA (https://www.tutorialspoint.com/r/r_mean_median_mode.htm)
-getmode <- function(v) {
-  uniqv <- unique(v)
-  uniqv[which.max(tabulate(match(v, uniqv)))]
-}
-
-getmode(sales)
-
-ggplot(data = sales_for_city)+
-    geom_line(aes(x=sales_for_city$year, 
-                  y=sales_for_city$sales_sum, 
-                  group=sales_for_city$city, 
-                  colour=sales_for_city$city))+
-    geom_point(aes(x=sales_for_city$year, 
-                   y=sales_for_city$sales_sum, 
-                   colour=sales_for_city$city), size=3)+
-    geom_text(aes(x=sales_for_city$year,
-                  y=sales_for_city$sales_sum+75,
-                  label=sales_for_city$sales_sum))+
-    scale_y_continuous(breaks = seq(0,4000,100))+
-    scale_color_discrete("Texas Cities")+
-    labs(x="year", y="sales")+
-    ggtitle("Sales Trend")+
-    theme_bw()+
-    theme(plot.title = element_text(hjust = 0.5))
-    
-
-ggplot(data = volume_sales,
-       aes(x=volume_sales$year, y=volume_sales$volumes_sum, group=volume_sales$city))+
-  geom_line(aes(colour=volume_sales$city))+
-  scale_color_discrete("Texas Cities")+
-  labs(x="year", y="volume sales (Million $)")+
-  ggtitle("Volume Sales Trend")+
-  theme(plot.title = element_text(hjust = 0.5))
-
-#ggplot(data = sales_for_city,
-#       aes(x=sales_for_city$year, group=sales_for_city$sell))+
-#  geom_bar(aes(fill=sales_for_city$city))+
-#  scale_y_continuous(breaks=seq(0,2000,20))+
-  
-
-#range, range interquartile, varianza, deviazione std, coeff di variabilità etc..
-attach(dati)
 
 CV <-function(x){
   return( sd(x)/mean(x) * 100 )
@@ -109,10 +40,46 @@ stats_report<-function(x, type="quantitative"){
   
 }
 
+#MODA (https://www.tutorialspoint.com/r/r_mean_median_mode.htm)
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+dati<-read.csv(file = "realestate_texas.csv")
+summary(dati[4:8])
+head(dati)
+
+table(dati[1])
+N <- dim(dati)[1]
+
+#City 
+city_distribution <- dati$city
+
+ni<-table(city_distribution)
+fi<-table(city_distribution)/N
+Ni<-cumsum(ni)
+Fi<-Ni/N
+
+cbind(ni, fi, Ni, Fi)
+
+attach(dati)
+
+#Summary variabili
+print(xtable(t(summary(sales))), type = "latex", include.rownames=FALSE)
+summary(volume)
+print(xtable(t(summary(volume))), type = "latex", include.rownames=FALSE)
+print(xtable(t(summary(median_price))), type = "latex", include.rownames=FALSE)
+print(xtable(t(summary(listings))), type = "latex", include.rownames=FALSE)
+print(xtable(t(summary(months_inventory))), type = "latex", include.rownames=FALSE)
+summary(listings)
+summary(months_inventory)
+getmode(sales)
+
+#range, range interquartile, varianza, deviazione std, coeff di variabilità etc..
 stats_report(sales)
 print(xtable(stats_report(sales)), type = "latex", include.rownames = F)
 print(xtable(stats_report(volume)), type = "latex", include.rownames = F)
-
 stats_report(listings)
 stats_report(months_inventory)
 print(xtable(stats_report(median_price)), type = "latex", include.rownames = F)
@@ -120,8 +87,6 @@ print(xtable(stats_report(listings)), type = "latex", include.rownames = F)
 print(xtable(stats_report(months_inventory)), type = "latex", include.rownames = F)
 
 #indici di forma (Asimmetria, curtosi )
-library(moments)
-library(gghalves)
 skewness(sales)
 kurtosis(sales)-3
 skewness(volume)
@@ -138,6 +103,7 @@ kurtosis(months_inventory)-3
 #AD ESEMPIO: LA PERCENTUALE DI CASE VENDUTE NEL PRIMO MESE, RISPETTO AL TOTALE.
 #PERCENTUALE DI VOLUMI RISPETTO AL TOTALE ETC..
 #IN QUESTO MODO OTTENGO QUALCOSA DI CONCRETO...
+
 round(max(months_inventory))
 table(months_inventory)
 min_month_inventory<-as.integer(min(months_inventory))
@@ -186,7 +152,7 @@ dev.off()
 
 mode(city)
 
-attach(dati)
+#Punti 8 e 9: 
 mean_price <- round((volume / sales) * 10^6)
 ads_efficiency <- round(sales / listings, digits = 2)
 
@@ -208,6 +174,10 @@ summary(ads_efficiency)
 ads_eff_distr<- dati_with_mean_and_eff %>%
                 group_by(city, year) %>%
                 summarise(average_eff= round(mean(ads_efficiency), digits = 2))
+
+sales_for_city <- dati %>%
+  group_by(city, year) %>%
+  summarize(sales_sum = sum(as.integer(sales)))
 
 pdf("figures/sales_trend.pdf", height=6, width=6)
 ggplot(data = sales_for_city)+
@@ -249,8 +219,7 @@ ggplot(data = ads_eff_distr)+
 
 dev.off()
 
-#Probabilità Beaumont, Bryan-College Station, Tyler, Wichita Falls, mese luglio, anno 2014
-
+#Probabilità Beaumont, mese luglio, anno 2014 (Punto 6)
 beaumont_city <- filter(dati, city=="Beaumont")
 beaumont_city_len <- dim(beaumont_city)[1]
 beumont_prob<- beaumont_city_len/N
@@ -273,12 +242,7 @@ dec_2012_prob <- month_prob*year_prob
 dec_2012_prob
 
 
-
 #vediamo un confronto città anni mesi (PUNTO 10)
-sales_for_city <- dati %>%
-  group_by(city, year) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
-
 sales_for_year <- dati %>%
   group_by(year) %>%
   summarize(sales_sum = sum(as.integer(sales)))
@@ -347,7 +311,7 @@ effectiveness_for_month_for_year
 
 detach(dati)
 attach(sales_for_month_for_year)
-pdf("figures/effectiveness_trend_months_and_year.pdf", height=6, width=6)
+pdf("figures/sales_trend_months_and_year.pdf", height=6, width=6)
 ggplot(data = sales_for_month_for_year)+
   geom_line(aes(x=month, 
                 y=sales_sum, 
@@ -360,16 +324,25 @@ ggplot(data = sales_for_month_for_year)+
                      breaks = seq(400,1200,200))+
   scale_color_discrete("Years")+
   scale_x_continuous(breaks = seq(1,12,1))+
-  labs(x="Month", y="Sales")+
-  title("")
+  labs(x="Month", y="Sales", title = "Global sales comparison over the years")+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
 detach(sales_for_month_for_year)
 
+
+
+
+
 attach(dati)
 
-
+ggplot(data = volume_sales,
+       aes(x=volume_sales$year, y=volume_sales$volumes_sum, group=volume_sales$city))+
+  geom_line(aes(colour=volume_sales$city))+
+  scale_color_discrete("Texas Cities")+
+  labs(x="year", y="volume sales (Million $)")+
+  ggtitle("Volume Sales Trend")+
+  theme(plot.title = element_text(hjust = 0.5))
 
 
 detach(dati)
