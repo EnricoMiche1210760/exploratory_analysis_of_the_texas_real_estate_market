@@ -1,6 +1,6 @@
 getwd()
-#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 
 library(ggplot2)
@@ -301,11 +301,15 @@ print(xtable(stats_report(sales_for_month_for_year$sales_sum)), type = "latex", 
 print(xtable(stats_report(volume_sales_for_month_for_year$volumes_sum)), type = "latex", include.rownames = F)
 
 #effectiveness
-effectiveness_for_month_for_year <- dati_with_mean_and_eff %>%
-  group_by(dati_with_mean_and_eff$year, dati_with_mean_and_eff$month) %>%
-  summarize(effectiveness = mean(dati_with_mean_and_eff$ads_eff))
+effectiveness_for_city <- dati_with_mean_and_eff %>%
+  group_by(year, month) %>%
+  summarise(average_eff= round(mean(ads_efficiency), digits = 2))
 
-effectiveness_for_month_for_year
+dati_with_mean_and_eff$ads_efficiency
+effectiveness_for_city #questa è buona
+
+mean(dati_with_mean_and_eff$ads_efficiency)
+
 #mean price
 
 
@@ -331,8 +335,22 @@ dev.off()
 detach(sales_for_month_for_year)
 
 
+pdf("figures/sales_trend_months_and_year.pdf", height=6, width=6)
+ggplot(data = sales_for_month_for_year, aes(x=month, 
+                                            y=sales_sum, 
+                                            group=year, 
+                                            fill=factor(year)))+
+  geom_bar(stat="identity")+
+  scale_y_continuous(limits = c(0, 1200),
+                     breaks = seq(0,1200,200))+
+  scale_color_discrete("Years")+
+  scale_x_continuous(breaks = seq(1,12,1))+
+  labs(x="Month", y="Sales", title = "Global sales comparison over the years")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 
 
+?stat_count
 
 attach(dati)
 
