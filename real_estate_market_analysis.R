@@ -256,7 +256,7 @@ print(xtable(sales_for_month))
 
 volume_for_year <- dati %>%
   group_by(year) %>%
-  summarize(volume_sum = sum(volume))
+  summarize(volume_sum = sum(volume)) 
 
 volume_sales <- dati %>%
   group_by(city, year) %>%
@@ -301,12 +301,12 @@ print(xtable(stats_report(sales_for_month_for_year$sales_sum)), type = "latex", 
 print(xtable(stats_report(volume_sales_for_month_for_year$volumes_sum)), type = "latex", include.rownames = F)
 
 #effectiveness
-effectiveness_for_city <- dati_with_mean_and_eff %>%
-  group_by(year, month) %>%
+effectiveness_for_city_and_year <- dati_with_mean_and_eff %>%
+  group_by(city, year) %>%
   summarise(average_eff= round(mean(ads_efficiency), digits = 2))
 
 dati_with_mean_and_eff$ads_efficiency
-effectiveness_for_city #questa è buona
+effectiveness_for_city_and_year #questa è buona
 
 mean(dati_with_mean_and_eff$ads_efficiency)
 
@@ -334,23 +334,41 @@ ggplot(data = sales_for_month_for_year)+
 dev.off()
 detach(sales_for_month_for_year)
 
+percentage_vols <- volume_sales %>%
+  group_by(year) %>%
+  summarise(volume_total = sum(volumes_sum))
+volume_total <- c()
 
-pdf("figures/sales_trend_months_and_year.pdf", height=6, width=6)
-ggplot(data = sales_for_month_for_year, aes(x=month, 
-                                            y=sales_sum, 
-                                            group=year, 
-                                            fill=factor(year)))+
-  geom_bar(stat="identity")+
-  scale_y_continuous(limits = c(0, 1200),
-                     breaks = seq(0,1200,200))+
+for(j in 1:dim(percentage_vols)[1])
+{
+  print(j)
+  for(i in 1:dim(volume_sales)[1]/5)
+  {
+  print(i)
+    volume_total <- c(volume_total, percentage_vols$volume_total[j])
+  }
+}
+volume_total
+
+pdf("figures/volume_contribution.pdf", height=6, width=6)
+ggplot(data = volume_sales)+
+  geom_bar(aes(x=volume_sales$year, 
+               y=volume_sales$volumes_percentage, 
+               group=volume_sales$city, 
+               fill=factor(volume_sales$city)),
+           stat="identity",
+           position="dodge")+ #stack
+  scale_y_continuous(limits = c(0, 100),
+                     breaks = seq(0,100,10))+
   scale_color_discrete("Years")+
-  scale_x_continuous(breaks = seq(1,12,1))+
-  labs(x="Month", y="Sales", title = "Global sales comparison over the years")+
+  scale_x_continuous(breaks = seq(2010,2014,1))+
+  labs(x="Year", y="Effectiveness", fill = "Texas Cities:", title = "Average effectiveness of ads")+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
+dev.off()
 
 
-?stat_count
+
 
 attach(dati)
 
