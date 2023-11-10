@@ -346,13 +346,59 @@ ggplot(data = volume_sales)+
                fill=factor(volume_sales$city)),
            stat="identity",
            position="fill")+ 
-  labs(x="Year", y="Effectiveness", fill = "Texas Cities:", title = "Volumes ratio by City")+
+  labs(x="Year", y="Volume ratio", fill = "Texas Cities:", title = "Volumes ratio by City")+
+  scale_fill_manual("legend", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
+
+dev.off()
+
+pdf("figures/mean_price_by_city.pdf", height=6, width=6)
+ggplot(data = dati_with_mean_and_eff)+
+  geom_bar(aes(x=year, 
+               y=mean_price, 
+               group=city, 
+               fill=factor(city)),
+           stat="identity",
+           position="dodge")+ 
+  labs(x="Year", y="Mean price (Million $)", fill = "Texas Cities:", title = "Mean price by City")+
   scale_fill_manual("legend", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
 
+pdf("figures/sales_by_city.pdf", height=6, width=6)
+ggplot(data = sales_for_city)+
+  geom_bar(aes(x=year, 
+               y=sales_sum, 
+               group=city, 
+               fill=factor(city)),
+           stat="identity",
+           position="dodge")+ 
+  labs(x="Year", y="Sales", fill = "Texas Cities:", title = "Sales by City")+
+  scale_fill_manual("legend", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
+dev.off()
 
+pdf("figures/ads_efficiency_v2.pdf", height=6, width=6)
+ggplot(data = ads_eff_distr)+
+  geom_line(aes(x=ads_eff_distr$year, 
+                y=ads_eff_distr$average_eff, 
+                group=ads_eff_distr$city),
+                color=c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2")
+              )+
+  geom_point(aes(x=ads_eff_distr$year, 
+                 y=ads_eff_distr$average_eff), 
+                 size=3)+
+  geom_text(aes(x=ads_eff_distr$year,
+                y=ads_eff_distr$average_eff+0.005,
+                label=ads_eff_distr$average_eff))+
+  scale_y_continuous(breaks = seq(0,1,0.01))+
+  labs(x="Year", y="Ads efficiency")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")
+dev.off()
 
 
 attach(dati)
