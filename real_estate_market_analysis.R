@@ -346,8 +346,8 @@ ggplot(data = volume_sales)+
                fill=factor(volume_sales$city)),
            stat="identity",
            position="fill")+ 
-  labs(x="Year", y="Volume ratio", fill = "Texas Cities:", title = "Volumes ratio by City")+
-  scale_fill_manual("legend", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  labs(x="Year", y="Volume ratio", title = "Volumes ratio by City")+
+  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 
@@ -361,8 +361,8 @@ ggplot(data = dati_with_mean_and_eff)+
                fill=factor(city)),
            stat="identity",
            position="dodge")+ 
-  labs(x="Year", y="Mean price (Million $)", fill = "Texas Cities:", title = "Mean price by City")+
-  scale_fill_manual("legend", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  labs(x="Year", y="Mean price (Million $)", title = "Mean price by City")+
+  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
@@ -375,30 +375,84 @@ ggplot(data = sales_for_city)+
                fill=factor(city)),
            stat="identity",
            position="dodge")+ 
-  labs(x="Year", y="Sales", fill = "Texas Cities:", title = "Sales by City")+
-  scale_fill_manual("legend", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  labs(x="Year", y="Sales", title = "Sales by City")+
+  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
 
 pdf("figures/ads_efficiency_v2.pdf", height=6, width=6)
-ggplot(data = ads_eff_distr)+
-  geom_line(aes(x=ads_eff_distr$year, 
-                y=ads_eff_distr$average_eff, 
-                group=ads_eff_distr$city),
-                color=c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2")
-              )+
-  geom_point(aes(x=ads_eff_distr$year, 
-                 y=ads_eff_distr$average_eff), 
-                 size=3)+
-  geom_text(aes(x=ads_eff_distr$year,
-                y=ads_eff_distr$average_eff+0.005,
-                label=ads_eff_distr$average_eff))+
-  scale_y_continuous(breaks = seq(0,1,0.01))+
-  labs(x="Year", y="Ads efficiency")+
+ggplot(data = ads_eff_distr, 
+       aes(x=ads_eff_distr$year, 
+           y=ads_eff_distr$average_eff, 
+           group=ads_eff_distr$city,
+           color=ads_eff_distr$city)
+      )+
+  geom_line()+
+  geom_point(size=3)+
+  geom_text(x=ads_eff_distr$year,
+            y=ads_eff_distr$average_eff+0.007,
+            label=ads_eff_distr$average_eff,
+            color = "black")+
+  scale_color_manual(
+    name = "Texas Cities:",
+    breaks=c("Beaumont", "Bryan-College Station", "Tyler", "Wichita Falls"),
+    values = c("darkolivegreen3", "darkcyan", "coral", "burlywood2"))+
+  scale_y_continuous(
+            limits = c(0.06, 0.25),
+            breaks = seq(0.06,0.25,0.01))+
+  labs(x="Year", y="Ads efficiency", title = "Ads effectiveness")+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")
 dev.off()
+
+bryan_college_city <- filter(dati, city == "Bryan-College Station")
+bryan_college_city <- bryan_college_city %>%
+  group_by(month) %>%
+  summarize(volume = mean(volume))
+
+pdf("figures/mean_volumes_bryan_college.pdf", height=6, width=6)
+barplot(bryan_college_city$volume,
+        ylim = c(0,60),
+        col = "indianred",
+        main = "Mean volumes for Bryan-College Station by month",
+        font.main = 1,
+        width = vec,
+        names.arg = rownames(bryan_college_city))+
+mtext(side=1, 
+      text="Month",
+      line=2.5,
+      cex = 1.25)
+mtext(side=2,
+      text="Mean volumes (Million $)",
+      line=2.5,
+      cex = 1.25)
+dev.off()
+
+
+print(xtable(t(summary(bryan_college_city$volume))), type = "latex", include.rownames = F)
+stats_report(bryan_college_city$volume)
+
+
+
+#VOGLIO PROVARE UNA COSA:
+pdf("figures/median_price_density.pdf", height=6, width=6)
+ggplot(data = dati, aes(x = median_price)) +
+  geom_density(color = "red")+
+  labs(x="Median price", title="Median price distribution")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5))
+dev.off()
+
+pdf("figures/sales_density.pdf", height=6, width=6)
+ggplot(data = dati, aes(x = sales)) +
+  geom_density(color = "red")+
+  labs(x="Sales", title="Sales distribution")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5))
+dev.off()
+
+#BOX PLOT (1)
 
 
 attach(dati)
