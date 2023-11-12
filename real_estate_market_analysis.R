@@ -1,14 +1,15 @@
 getwd()
-setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
-
+#include libraries
 library(ggplot2)
 library(dplyr)
 library(xtable)
 library(moments)
 library(gghalves)
 
+#compute Gini coefficient
 gini.index <- function(x){
   ni = table(x)
   fi = ni/length(x)
@@ -21,10 +22,12 @@ gini.index <- function(x){
   return(gini.norm)
 }
 
+#compute variability coefficient
 CV <-function(x){
   return( sd(x)/mean(x) * 100 )
 }
 
+#compute variability measures
 stats_report<-function(x, type="quantitative"){
   variance<-var(x) 
   std_dev<-sd(x)
@@ -46,6 +49,7 @@ getmode <- function(v) {
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
+#load data (Point 1)
 dati<-read.csv(file = "realestate_texas.csv")
 summary(dati[4:8])
 head(dati)
@@ -53,9 +57,8 @@ head(dati)
 table(dati[1])
 N <- dim(dati)[1]
 
-#City 
+#City distribution
 city_distribution <- dati$city
-
 ni<-table(city_distribution)
 fi<-table(city_distribution)/N
 Ni<-cumsum(ni)
@@ -65,28 +68,26 @@ cbind(ni, fi, Ni, Fi)
 
 attach(dati)
 
-#Summary variabili
+#Point 2 see Analisi_Esplorativa_Del_Mercato_Immobiliare_del_Texas
+
+# ************************************* #
+#                 Point 3
+# ************************************* #
+#Summary of variables (use print(xtable()) to convert output in Latex table)
 print(xtable(t(summary(sales))), type = "latex", include.rownames=FALSE)
-summary(volume)
 print(xtable(t(summary(volume))), type = "latex", include.rownames=FALSE)
 print(xtable(t(summary(median_price))), type = "latex", include.rownames=FALSE)
 print(xtable(t(summary(listings))), type = "latex", include.rownames=FALSE)
 print(xtable(t(summary(months_inventory))), type = "latex", include.rownames=FALSE)
-summary(listings)
-summary(months_inventory)
-getmode(sales)
 
 #range, range interquartile, varianza, deviazione std, coeff di variabilità etc..
-stats_report(sales)
 print(xtable(stats_report(sales)), type = "latex", include.rownames = F)
 print(xtable(stats_report(volume)), type = "latex", include.rownames = F)
-stats_report(listings)
-stats_report(months_inventory)
 print(xtable(stats_report(median_price)), type = "latex", include.rownames = F)
 print(xtable(stats_report(listings)), type = "latex", include.rownames = F)
 print(xtable(stats_report(months_inventory)), type = "latex", include.rownames = F)
 
-#indici di forma (Asimmetria, curtosi )
+#shape indexes (Kurtosis, Skewness)
 skewness(sales)
 kurtosis(sales)-3
 skewness(volume)
@@ -99,12 +100,6 @@ skewness(months_inventory)
 kurtosis(months_inventory)-3
 
 
-#DISTRIBUZIONE DI FREQUENZA DA CREARE: ANNI, QUADRIMESTRI, CITTA, MESI (QUINDI UNIRE PER MESI, INVECE CHE PER QUADRIMESTRI)
-#AD ESEMPIO: LA PERCENTUALE DI CASE VENDUTE NEL PRIMO MESE, RISPETTO AL TOTALE.
-#PERCENTUALE DI VOLUMI RISPETTO AL TOTALE ETC..
-#IN QUESTO MODO OTTENGO QUALCOSA DI CONCRETO...
-
-round(max(months_inventory))
 table(months_inventory)
 min_month_inventory<-as.integer(min(months_inventory))
 max_month_inventory<-round(max(months_inventory))
@@ -150,7 +145,6 @@ mtext(side=2,
 
 dev.off()
 
-mode(city)
 
 #Punti 8 e 9: 
 mean_price <- round((volume / sales) * 10^6)
@@ -333,7 +327,7 @@ ggplot(data = sales_for_month_for_year)+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
 detach(sales_for_month_for_year)
-
+attach(dati)
 
 print(xtable(t(summary(volume_sales$volumes_sum))), type = "latex", include.rownames = F)
 stats_report(volume_sales$volumes_sum)
@@ -350,7 +344,6 @@ ggplot(data = volume_sales)+
   scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
-
 dev.off()
 
 pdf("figures/mean_price_by_city.pdf", height=6, width=6)
@@ -452,18 +445,84 @@ ggplot(data = dati, aes(x = sales)) +
   theme(plot.title = element_text(hjust = 0.5))
 dev.off()
 
-#BOX PLOT (1)
+# ********************************** #
+#               PART 2               #
+# ********************************** #
 
+# ************* #
+#    Point 1    #
+# ************* #
+pdf("figures/median_price_boxplot.pdf", height=6, width=6)
+ggplot(data = dati, 
+       aes(x = city,  
+           y = median_price,
+           fill = city) ) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("Beaumont" = "darkolivegreen3",
+                             "Bryan-College Station" = "darkcyan",
+                             "Tyler" = "coral",
+                             "Wichita Falls" = "burlywood2"))+
+  labs(x="Cities", y= "Median price", title="Median price by Texas cities")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")
+dev.off()
 
-attach(dati)
+boxplot_stats <- dati %>%
+  group_by(city, year) %>%
+  summarize(
+    lower = quantile(sales, 0.25),
+    middle = median(sales),
+    upper = quantile(sales, 0.75),
+    ymin = min(sales),
+    ymax = max(sales)
+  )
 
-ggplot(data = volume_sales,
-       aes(x=volume_sales$year, y=volume_sales$volumes_sum, group=volume_sales$city))+
-  geom_line(aes(colour=volume_sales$city))+
-  scale_color_discrete("Texas Cities")+
-  labs(x="year", y="volume sales (Million $)")+
-  ggtitle("Volume Sales Trend")+
-  theme(plot.title = element_text(hjust = 0.5))
+attach(boxplot_stats)
+# facet_wrap(~ city, scales = "free", ncol = 1) --> divido grafico per città
+
+# ************* #
+#    Point 2    #
+# ************* #
+pdf("figures/sales_boxplot.pdf", height=6, width=6)
+ggplot(data = boxplot_stats,
+       aes(x = factor(year), 
+           lower = lower,
+           middle = middle,
+           upper = upper,
+           ymin = ymin,
+           ymax = ymax, 
+           group = interaction(year, city),
+           fill = factor(city))) +
+  geom_boxplot(stat = "identity", position = position_dodge(0.9)) +
+  scale_x_discrete(breaks = seq(min(boxplot_stats$year), max(boxplot_stats$year))) +
+  labs(x = "Year", y = "Sales", title = "Sales by City") +
+  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
+dev.off()
+detach(boxplot_stats)
+
+# ************* #
+#    Point 3    #
+# ************* #
+pdf("figures/multiple_boxplot.pdf", height=6, width=6)
+ggplot(data = dati)+
+  geom_bar(aes(x=month, 
+               y=sales, 
+               group=city, 
+               fill=factor(city)),
+           stat="identity",
+           position="fill")+ 
+  scale_x_continuous(breaks = seq(min(month), max(month)),
+                     labels = seq(min(month), max(month))) +
+  labs(x="Month", y="Sales", title = "Sales ratio by City, year by year")+
+  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "bottom")+
+  facet_wrap(~ year, scales = "free", ncol = 1)
+dev.off()
+
 
 
 detach(dati)
