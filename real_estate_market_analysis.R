@@ -1,6 +1,6 @@
 getwd()
-#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 #include libraries
 library(ggplot2)
@@ -8,6 +8,7 @@ library(dplyr)
 library(xtable)
 library(moments)
 library(gghalves)
+library(zoo)
 
 #compute Gini coefficient
 gini.index <- function(x){
@@ -428,7 +429,7 @@ stats_report(bryan_college_city$volume)
 
 
 
-#VOGLIO PROVARE UNA COSA:
+#DENSITY
 pdf("figures/median_price_density.pdf", height=6, width=6)
 ggplot(data = dati, aes(x = median_price)) +
   geom_density(color = "red")+
@@ -505,7 +506,7 @@ detach(boxplot_stats)
 # ************* #
 #    Point 3    #
 # ************* #
-pdf("figures/multiple_boxplot.pdf", height=6, width=6)
+pdf("figures/multiple_boxplot.pdf", height=8, width=6)
 ggplot(data = dati)+
   geom_bar(aes(x=month, 
                y=sales, 
@@ -515,7 +516,7 @@ ggplot(data = dati)+
            position="fill")+ 
   scale_x_continuous(breaks = seq(min(month), max(month)),
                      labels = seq(min(month), max(month))) +
-  labs(x="Month", y="Sales", title = "Sales ratio by City, year by year")+
+  labs(x="Month", y="Sales", title = "Sales ratio by City and by year")+
   scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),
@@ -523,9 +524,39 @@ ggplot(data = dati)+
   facet_wrap(~ year, scales = "free", ncol = 1)
 dev.off()
 
+# ************* #
+#    Point 4    #
+# ************* #
 
+dates <- seq(as.Date("2010-01-01"), as.Date("2014-12-01"), by = "1 month")
+date_data <- data.frame(date = dates)
+volume_dataset_timeline <- cbind(date_data, city)
+volume_dataset_timeline <- cbind(volume_dataset_timeline, volume)
+volume_dataset_timeline <- volume_dataset_timeline %>%
+  mutate(date = as.yearmon(date))
 
 detach(dati)
+attach(volume_dataset_timeline)
+pdf("figures/multiple_plot_volume.pdf", height=8, width=6)
+ggplot(data = volume_dataset_timeline, 
+       aes(x = date, y = volume, color = city)) +
+  geom_line() +
+  geom_point(size = 1.5) +
+  scale_y_continuous(breaks = seq(8, 88, 10),
+                     limits = c(8, 88))+
+  scale_x_yearmon(n = 3*5, 
+                  format = "%m-%Y") +
+  scale_color_manual(
+    name = "Texas Cities:",
+    breaks = c("Beaumont", "Bryan-College Station", "Tyler", "Wichita Falls"),
+    values = c("darkolivegreen3", "darkcyan", "coral", "burlywood2")) +
+  labs(x = "Date", y = "Volume (Million $)", title = "Volume trend by City") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")+
+  facet_wrap(~ city, scales = "free", ncol = 1)
+dev.off()
+detach(volume_dataset_timeline)
+
 
 
 
