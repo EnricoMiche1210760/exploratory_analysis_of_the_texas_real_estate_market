@@ -518,6 +518,17 @@ ggplot(data = boxplot_stats,
 dev.off()
 detach(boxplot_stats)
 
+sales_Br_col_2013 <- filter(dati, city == "Bryan-College Station", year == 2013)
+sales_Wct_col_2013 <- filter(dati, city == "Wichita Falls", year == 2013)
+density(sales_Br_col_2013$sales)
+
+ggplot(data = sales_Br_col_2013, aes(x = sales_Br_col_2013$sales)) +
+  geom_density(color = "red")+
+  labs(x="Sales", title="Sales distribution")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
 # ************* #
 #    Point 3    #
 # ************* #
