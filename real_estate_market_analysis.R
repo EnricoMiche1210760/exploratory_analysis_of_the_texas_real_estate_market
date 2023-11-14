@@ -1,6 +1,6 @@
 getwd()
-setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 #include libraries
 library(ggplot2)
@@ -467,7 +467,22 @@ ggplot(data = dati,
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")
 dev.off()
+# facet_wrap(~ city, scales = "free", ncol = 1) --> divido grafico per città
 
+city_range <- dati %>%
+  group_by(city) %>%
+  summarise(
+    range_val <- max(median_price)-min(median_price)
+  )
+
+
+
+
+
+
+# ************* #
+#    Point 2    #
+# ************* #
 boxplot_stats <- dati %>%
   group_by(city, year) %>%
   summarize(
@@ -478,12 +493,11 @@ boxplot_stats <- dati %>%
     ymax = max(sales)
   )
 
-attach(boxplot_stats)
-# facet_wrap(~ city, scales = "free", ncol = 1) --> divido grafico per città
+boxplot_stats
 
-# ************* #
-#    Point 2    #
-# ************* #
+attach(boxplot_stats)
+
+
 pdf("figures/sales_boxplot.pdf", height=6, width=6)
 ggplot(data = boxplot_stats,
        aes(x = factor(year), 
@@ -537,7 +551,7 @@ volume_dataset_timeline <- volume_dataset_timeline %>%
 
 detach(dati)
 attach(volume_dataset_timeline)
-pdf("figures/multiple_plot_volume.pdf", height=8, width=6)
+pdf("figures/multiple_plot_volume.pdf", height=12, width=6)
 ggplot(data = volume_dataset_timeline, 
        aes(x = date, y = volume, color = city)) +
   geom_line() +
@@ -552,7 +566,10 @@ ggplot(data = volume_dataset_timeline,
     values = c("darkolivegreen3", "darkcyan", "coral", "burlywood2")) +
   labs(x = "Date", y = "Volume (Million $)", title = "Volume trend by City") +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")+
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1)
+  )+
   facet_wrap(~ city, scales = "free", ncol = 1)
 dev.off()
 detach(volume_dataset_timeline)
