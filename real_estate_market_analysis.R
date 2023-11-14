@@ -1,6 +1,6 @@
 getwd()
-#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 #include libraries
 library(ggplot2)
@@ -459,11 +459,12 @@ ggplot(data = dati,
            y = median_price,
            fill = city) ) +
   geom_boxplot() +
-  scale_fill_manual(values = c("Beaumont" = "darkolivegreen3",
+  scale_fill_manual("Texas Cities:", 
+                    values = c("Beaumont" = "darkolivegreen3",
                              "Bryan-College Station" = "darkcyan",
                              "Tyler" = "coral",
                              "Wichita Falls" = "burlywood2"))+
-  labs(x="Cities", y= "Median price", title="Median price by Texas cities")+
+  labs(x="Cities", y= "Median price ($)", title="Median price by Texas cities")+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")
 dev.off()
@@ -472,11 +473,11 @@ dev.off()
 city_range <- dati %>%
   group_by(city) %>%
   summarise(
-    range_val <- max(median_price)-min(median_price)
+    min_val <- min(median_price),
+    mean_val <- mean(median_price),
+    max_val <- max(median_price),
+    range_val <- IQR(median_price)
   )
-
-
-
 
 
 
