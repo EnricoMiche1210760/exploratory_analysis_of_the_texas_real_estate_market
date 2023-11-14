@@ -1,6 +1,6 @@
 getwd()
-setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 #include libraries
 library(ggplot2)
@@ -522,11 +522,20 @@ sales_Br_col_2013 <- filter(dati, city == "Bryan-College Station", year == 2013)
 sales_Wct_col_2013 <- filter(dati, city == "Wichita Falls", year == 2013)
 density(sales_Br_col_2013$sales)
 
+pdf("figures/sales_prob_funct_brcl.pdf", height=6, width=6)
 ggplot(data = sales_Br_col_2013, aes(x = sales_Br_col_2013$sales)) +
   geom_density(color = "red")+
-  labs(x="Sales", title="Sales distribution")+
+  labs(x="Sales", title="Bryan-College Station: Sales probability function")+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5))
+dev.off()
+pdf("figures/sales_prob_funct_wtcfll.pdf", height=6, width=6)
+ggplot(data = sales_Wct_col_2013, aes(x = sales_Wct_col_2013$sales)) +
+  geom_density(color = "red")+
+  labs(x="Sales", title="Wichita Falls: Sales probability function")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5))
+dev.off()
 
 
 # ************* #
@@ -542,7 +551,7 @@ ggplot(data = dati)+
            position="fill")+ 
   scale_x_continuous(breaks = seq(min(month), max(month)),
                      labels = seq(min(month), max(month))) +
-  labs(x="Month", y="Sales", title = "Sales ratio by City and by year")+
+  labs(x="Month", y="Sales", title = "Sales ratio by City over the months")+
   scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),
