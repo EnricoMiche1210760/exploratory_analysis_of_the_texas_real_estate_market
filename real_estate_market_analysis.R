@@ -44,13 +44,10 @@ stats_report<-function(x, type="quantitative"){
   
 }
 
-#MODA (https://www.tutorialspoint.com/r/r_mean_median_mode.htm)
-getmode <- function(v) {
-  uniqv <- unique(v)
-  uniqv[which.max(tabulate(match(v, uniqv)))]
-}
 
-#load data (Point 1)
+# ************************************* #
+#                 Point 1
+# ************************************* #
 dati<-read.csv(file = "realestate_texas.csv")
 summary(dati[4:8])
 head(dati)
@@ -58,22 +55,17 @@ head(dati)
 table(dati[1])
 N <- dim(dati)[1]
 
-#City distribution
-city_distribution <- dati$city
-ni<-table(city_distribution)
-fi<-table(city_distribution)/N
-Ni<-cumsum(ni)
-Fi<-Ni/N
-
-cbind(ni, fi, Ni, Fi)
-
 attach(dati)
 
-#Point 2 see Analisi_Esplorativa_Del_Mercato_Immobiliare_del_Texas
+# ************************************* #
+#                 Point 2
+# ************************************* #
+# see Analisi_Esplorativa_Del_Mercato_Immobiliare_del_Texas.pdf page 1
 
 # ************************************* #
 #                 Point 3
 # ************************************* #
+
 #Summary of variables (use print(xtable()) to convert output in Latex table)
 print(xtable(t(summary(sales))), type = "latex", include.rownames=FALSE)
 print(xtable(t(summary(volume))), type = "latex", include.rownames=FALSE)
@@ -100,11 +92,17 @@ kurtosis(listings)-3
 skewness(months_inventory)
 kurtosis(months_inventory)-3
 
-
+# ************************************* #
+#                 Point 4
+# ************************************* #
+# see Analisi_Esplorativa_Del_Mercato_Immobiliare_del_Texas.pdf page 4
+ 
+# ************************************* #
+#                 Point 5
+# ************************************* #
 table(months_inventory)
 min_month_inventory<-as.integer(min(months_inventory))
 max_month_inventory<-round(max(months_inventory))
-
 month_inventory_class <- cut(months_inventory, 
                              breaks = seq(min_month_inventory,
                                           max_month_inventory,
@@ -119,7 +117,6 @@ Fi<-Ni/N
 
 month_inventory_cl_distribution<-as.data.frame((cbind(ni,fi,Ni,Fi)))
 gini.index(month_inventory_class)
-
 c_size<-dim(month_inventory_cl_distribution)[1]
 vec=c(0.1)
 for ( i in 2:c_size ){
@@ -127,7 +124,6 @@ for ( i in 2:c_size ){
 }
 
 pdf("figures/myfile.pdf", height=6, width=6)
-
 barplot(month_inventory_cl_distribution$ni,
         ylim = c(0,120),
         col = "aquamarine4",
@@ -146,8 +142,39 @@ mtext(side=2,
 
 dev.off()
 
+#Probability function
+pdf("figures/median_price_density.pdf", height=6, width=6)
+ggplot(data = dati, aes(x = median_price)) +
+  geom_density(color = "red")+
+  labs(x="Median price", title="Median price distribution")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5))
+dev.off()
 
-#Punti 8 e 9: 
+pdf("figures/sales_density.pdf", height=6, width=6)
+ggplot(data = dati, aes(x = sales)) +
+  geom_density(color = "red")+
+  labs(x="Sales", title="Sales distribution")+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5))
+dev.off()
+
+# ************************************* #
+#                 Point 6
+# ************************************* #
+#City distribution
+city_distribution <- dati$city
+ni<-table(city_distribution)
+fi<-table(city_distribution)/N
+Ni<-cumsum(ni)
+Fi<-Ni/N
+
+cbind(ni, fi, Ni, Fi)
+
+
+# ************************************* #
+#             Point 8 and 9
+# ************************************* #
 mean_price <- round((volume / sales) * 10^6)
 ads_efficiency <- round(sales / listings, digits = 2)
 
@@ -214,7 +241,9 @@ ggplot(data = ads_eff_distr)+
 
 dev.off()
 
-#Probabilità Beaumont, mese luglio, anno 2014 (Punto 6)
+# ************************************* #
+#                 Point 7
+# ************************************* #
 beaumont_city <- filter(dati, city=="Beaumont")
 beaumont_city_len <- dim(beaumont_city)[1]
 beumont_prob<- beaumont_city_len/N
@@ -237,7 +266,9 @@ dec_2012_prob <- month_prob*year_prob
 dec_2012_prob
 
 
-#vediamo un confronto città anni mesi (PUNTO 10)
+# ************************************* #
+#               Point 10
+# ************************************* #
 sales_for_year <- dati %>%
   group_by(year) %>%
   summarize(sales_sum = sum(as.integer(sales)))
@@ -246,67 +277,49 @@ sales_for_month <- dati %>%
   group_by(month) %>%
   summarize(sales_sum = sum(as.integer(sales)))
 
-print(xtable(sales_for_year))
-print(xtable(sales_for_month))
-
-volume_for_year <- dati %>%
-  group_by(year) %>%
-  summarize(volume_sum = sum(volume)) 
-
-volume_sales <- dati %>%
-  group_by(city, year) %>%
-  summarize(volumes_sum = sum((volume)))
-
-sales_for_month <- dati %>%
-  group_by(month) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
+volume_sales_for_month_for_year <- dati %>%
+  group_by(year, month) %>%
+  summarize(volumes_sum = sum(volume))
 
 sales_for_month_for_year <- dati %>%
   group_by(year, month) %>%
   summarize(sales_sum = sum(as.integer(sales)))
 
-volume_sales_for_month <- dati %>%
-  group_by(month) %>%
-  summarize(volumes_sum = sum(volume))
+print(xtable(sales_for_year))
+print(xtable(sales_for_month))
 
-volume_sales_for_month_for_year <- dati %>%
-  group_by(year, month) %>%
-  summarize(volumes_sum = sum(volume))
-
-dati_tyler<- filter(sales_for_city, city=="Tyler")
-
-#media delle vendite in un anno in una città:
-summary(sales_for_city$sales_sum)
-summary(dati_tyler$sales_sum)
-summary(sales_for_month$sales_sum)
-summary(volume_sales$volumes_sum)
-summary(volume_sales_for_month$volumes_sum)
 print(xtable(t(summary(sales_for_month_for_year$sales_sum))), type = "latex", include.rownames = F)
 print(xtable(t(summary(volume_sales_for_month_for_year$volumes_sum))), type = "latex", include.rownames = F)
 
 sales_for_month_for_year[sales_for_month_for_year$sales_sum=="1177",1:3] #Giugno 2014
 sales_for_month_for_year[sales_for_month_for_year$sales_sum=="421",1:3] #Gennaio 2010
 
+print(xtable(stats_report(sales_for_month_for_year$sales_sum)), type = "latex", include.rownames = F)
+print(xtable(stats_report(volume_sales_for_month_for_year$volumes_sum)), type = "latex", include.rownames = F)
+
+volume_sales <- dati %>%
+  group_by(city, year) %>%
+  summarize(volumes_sum = sum((volume)))
+
+dati_tyler<- filter(sales_for_city, city=="Tyler")
+
+summary(sales_for_city$sales_sum)
+summary(dati_tyler$sales_sum)
+summary(sales_for_month$sales_sum)
+summary(volume_sales$volumes_sum)
 
 stats_report(sales_for_city$sales_sum)
 stats_report(sales_for_month$sales_sum)
 stats_report(volume_sales$volumes_sum)
-stats_report(volume_sales_for_month$volumes_sum)
-print(xtable(stats_report(sales_for_month_for_year$sales_sum)), type = "latex", include.rownames = F)
-print(xtable(stats_report(volume_sales_for_month_for_year$volumes_sum)), type = "latex", include.rownames = F)
 
-#effectiveness
 effectiveness_for_city_and_year <- dati_with_mean_and_eff %>%
   group_by(city, year) %>%
   summarise(average_eff= round(mean(ads_efficiency), digits = 2))
 
 dati_with_mean_and_eff$ads_efficiency
-effectiveness_for_city_and_year #questa è buona
+effectiveness_for_city_and_year
 
 mean(dati_with_mean_and_eff$ads_efficiency)
-
-#mean price
-
 
 detach(dati)
 attach(sales_for_month_for_year)
@@ -342,7 +355,9 @@ ggplot(data = volume_sales)+
            stat="identity",
            position="fill")+ 
   labs(x="Year", y="Volume ratio", title = "Volumes ratio by City")+
-  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  scale_fill_manual("Texas Cities:", 
+                    values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", 
+                               "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
@@ -356,7 +371,9 @@ ggplot(data = dati_with_mean_and_eff)+
            stat="identity",
            position="dodge")+ 
   labs(x="Year", y="Mean price (Million $)", title = "Mean price by City")+
-  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  scale_fill_manual("Texas Cities:", 
+                    values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", 
+                               "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
@@ -370,7 +387,9 @@ ggplot(data = sales_for_city)+
            stat="identity",
            position="dodge")+ 
   labs(x="Year", y="Sales", title = "Sales by City")+
-  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  scale_fill_manual("Texas Cities:", 
+                    values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", 
+                               "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
@@ -423,28 +442,9 @@ mtext(side=2,
       cex = 1.25)
 dev.off()
 
-
 print(xtable(t(summary(bryan_college_city$volume))), type = "latex", include.rownames = F)
 stats_report(bryan_college_city$volume)
 
-
-
-#DENSITY
-pdf("figures/median_price_density.pdf", height=6, width=6)
-ggplot(data = dati, aes(x = median_price)) +
-  geom_density(color = "red")+
-  labs(x="Median price", title="Median price distribution")+
-  theme_minimal()+
-  theme(plot.title = element_text(hjust = 0.5))
-dev.off()
-
-pdf("figures/sales_density.pdf", height=6, width=6)
-ggplot(data = dati, aes(x = sales)) +
-  geom_density(color = "red")+
-  labs(x="Sales", title="Sales distribution")+
-  theme_minimal()+
-  theme(plot.title = element_text(hjust = 0.5))
-dev.off()
 
 # ********************************** #
 #               PART 2               #
@@ -468,7 +468,6 @@ ggplot(data = dati,
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom")
 dev.off()
-# facet_wrap(~ city, scales = "free", ncol = 1) --> divido grafico per città
 
 city_range <- dati %>%
   group_by(city) %>%
@@ -478,7 +477,6 @@ city_range <- dati %>%
     max_val <- max(median_price),
     range_val <- IQR(median_price)
   )
-
 
 
 # ************* #
@@ -512,7 +510,9 @@ ggplot(data = boxplot_stats,
   geom_boxplot(stat = "identity", position = position_dodge(0.9)) +
   scale_x_discrete(breaks = seq(min(boxplot_stats$year), max(boxplot_stats$year))) +
   labs(x = "Year", y = "Sales", title = "Sales by City") +
-  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  scale_fill_manual("Texas Cities:", 
+                    values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", 
+                               "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5),legend.position = "bottom")
 dev.off()
@@ -552,7 +552,9 @@ ggplot(data = dati)+
   scale_x_continuous(breaks = seq(min(month), max(month)),
                      labels = seq(min(month), max(month))) +
   labs(x="Month", y="Sales", title = "Sales ratio by City over the months")+
-  scale_fill_manual("Texas Cities:", values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
+  scale_fill_manual("Texas Cities:", 
+                    values = c("Beaumont" = "darkolivegreen3", "Bryan-College Station" = "darkcyan", 
+                               "Tyler" = "coral", "Wichita Falls"= "burlywood2"))+
   theme_minimal()+
   theme(plot.title = element_text(hjust = 0.5),
         legend.position = "bottom")+
