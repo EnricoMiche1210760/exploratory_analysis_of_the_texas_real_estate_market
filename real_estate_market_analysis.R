@@ -269,48 +269,34 @@ dec_2012_prob
 # ************************************* #
 #               Point 10
 # ************************************* #
-sales_for_year <- dati %>%
-  group_by(year) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
-
-sales_for_month <- dati %>%
-  group_by(month) %>%
+sales_for_month_for_year <- dati %>%
+  group_by(year, month) %>%
   summarize(sales_sum = sum(as.integer(sales)))
 
 volume_sales_for_month_for_year <- dati %>%
   group_by(year, month) %>%
   summarize(volumes_sum = sum(volume))
 
-sales_for_month_for_year <- dati %>%
-  group_by(year, month) %>%
-  summarize(sales_sum = sum(as.integer(sales)))
-
-print(xtable(sales_for_year))
-print(xtable(sales_for_month))
-
 print(xtable(t(summary(sales_for_month_for_year$sales_sum))), type = "latex", include.rownames = F)
-print(xtable(t(summary(volume_sales_for_month_for_year$volumes_sum))), type = "latex", include.rownames = F)
+print(xtable(stats_report(sales_for_month_for_year$sales_sum)), type = "latex", include.rownames = F)
 
 sales_for_month_for_year[sales_for_month_for_year$sales_sum=="1177",1:3] #Giugno 2014
 sales_for_month_for_year[sales_for_month_for_year$sales_sum=="421",1:3] #Gennaio 2010
-
-print(xtable(stats_report(sales_for_month_for_year$sales_sum)), type = "latex", include.rownames = F)
-print(xtable(stats_report(volume_sales_for_month_for_year$volumes_sum)), type = "latex", include.rownames = F)
 
 volume_sales <- dati %>%
   group_by(city, year) %>%
   summarize(volumes_sum = sum((volume)))
 
+print(xtable(t(summary(volume_sales$volumes_sum))), type = "latex", include.rownames = F)
+stats_report(volume_sales$volumes_sum)
+
 dati_tyler<- filter(sales_for_city, city=="Tyler")
 
 summary(sales_for_city$sales_sum)
 summary(dati_tyler$sales_sum)
-summary(sales_for_month$sales_sum)
-summary(volume_sales$volumes_sum)
 
 stats_report(sales_for_city$sales_sum)
-stats_report(sales_for_month$sales_sum)
-stats_report(volume_sales$volumes_sum)
+
 
 effectiveness_for_city_and_year <- dati_with_mean_and_eff %>%
   group_by(city, year) %>%
@@ -343,8 +329,6 @@ dev.off()
 detach(sales_for_month_for_year)
 attach(dati)
 
-print(xtable(t(summary(volume_sales$volumes_sum))), type = "latex", include.rownames = F)
-stats_report(volume_sales$volumes_sum)
 
 pdf("figures/volume_contribution.pdf", height=6, width=6)
 ggplot(data = volume_sales)+
