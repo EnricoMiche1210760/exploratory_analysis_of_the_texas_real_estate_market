@@ -1,6 +1,6 @@
 getwd()
-#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
 
 #include libraries
 library(ggplot2)
@@ -170,7 +170,7 @@ Ni<-cumsum(ni)
 Fi<-Ni/N
 
 cbind(ni, fi, Ni, Fi)
-
+gini.index(dati$city)
 
 # ************************************* #
 #             Point 8 and 9
@@ -260,9 +260,7 @@ year_prob<- year_len/N
 year_prob
 
 month_prob <- july_prob
-
 dec_2012_prob <- month_prob*year_prob
-
 dec_2012_prob
 
 
@@ -315,7 +313,7 @@ ggplot(data = sales_for_month_for_year)+
                 y=sales_sum, 
                 group=year, 
                 colour=factor(year)))+
-  geom_point(aes(x=month, 
+  geom_point(aes(x=month,  
                  y=sales_sum, 
                  colour=factor(year)), size=3)+
   scale_y_continuous(limits = c(400, 1200),
