@@ -1,6 +1,4 @@
-getwd()
-#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market/src")
+setwd("YOUR_PATH_TO/exploratory_analysis_of_the_texas_real_estate_market/src")
 
 #include libraries
 library(ggplot2)
