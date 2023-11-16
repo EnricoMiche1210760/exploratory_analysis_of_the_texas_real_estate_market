@@ -1,6 +1,6 @@
 getwd()
-setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
-#setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market")
+#setwd("/home/enrmic/exploratory_analysis_of_the_texas_real_estate_market")
+setwd("C:/Users/miche/exploratory_analysis_of_the_texas_real_estate_market/src")
 
 #include libraries
 library(ggplot2)
@@ -48,7 +48,7 @@ stats_report<-function(x, type="quantitative"){
 # ************************************* #
 #                 Point 1
 # ************************************* #
-dati<-read.csv(file = "realestate_texas.csv")
+dati<-read.csv(file = "data/realestate_texas.csv")
 summary(dati[4:8])
 head(dati)
 
